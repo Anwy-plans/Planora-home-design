@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Ivnora AI – Smart Home Designer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f4f6f9;
+}
+
+header {
+  background: #111827;
+  color: white;
+  padding: 15px;
+  text-align: center;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+#container {
+  display: flex;
+  height: 90vh;
+}
+
+#toolbox {
+  width: 220px;
+  background: white;
+  padding: 15px;
+  border-right: 1px solid #ddd;
+}
+
+.tool {
+  padding: 10px;
+  margin: 10px 0;
+  background: #e5e7eb;
+  cursor: grab;
+  text-align: center;
+  border-radius: 6px;
+}
+
+#canvas {
+  flex: 1;
+  background: #fff;
+  position: relative;
+  overflow: hidden;
+}
+
+.room {
+  width: 120px;
+  height: 80px;
+  position: absolute;
+  cursor: move;
+  border: 2px solid #111827;
+  background: rgba(59,130,246,0.2);
+  text-align: center;
+  line-height: 80px;
+  font-weight: bold;
+}
+
+.direction {
+  position: absolute;
+  font-weight: bold;
+  color: #111827;
+}
+
+#north { top: 10px; left: 50%; transform: translateX(-50%); }
+#south { bottom: 10px; left: 50%; transform: translateX(-50%); }
+#east { right: 10px; top: 50%; transform: translateY(-50%); }
+#west { left: 10px; top: 50%; transform: translateY(-50%); }
+
+#chatbot {
+  position: fixed;
+  bottom: 0;
+  right: 20px;
+  width: 300px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 10px 10px 0 0;
+}
+
+#chatHeader {
+  background: #111827;
+  color: white;
+  padding: 10px;
+  border-radius: 10px 10px 0 0;
+}
+
+#chatMessages {
+  height: 200px;
+  overflow-y: auto;
+  padding: 10px;
+  font-size: 14px;
+}
+
+#chatInput {
+  width: 70%;
+  padding: 5px;
+}
+
+button {
+  padding: 6px 10px;
+  background: #111827;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.premium {
+  background: #fef3c7;
+  padding: 10px;
+  margin-top: 20px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+</style>
+</head>
+
+<body>
+
+<header>Ivnora AI – Smart Home Designer</header>
+
+<div id="container">
+
+<div id="toolbox">
+  <h3>Toolbox</h3>
+  <div class="tool" draggable="true" ondragstart="drag(event)" id="Bedroom">Bedroom</div>
+  <div class="tool" draggable="true" ondragstart="drag(event)" id="Kitchen">Kitchen</div>
+  <div class="tool" draggable="true" ondragstart="drag(event)" id="Living">Living Room</div>
+  <div class="tool" draggable="true" ondragstart="drag(event)" id="Bathroom">Bathroom</div>
+
+  <div class="premium">
+    <b>Premium Features:</b><br>
+    ✔ AI Full Layout<br>
+    ✔ AI Furniture Placement<br>
+    ✔ AI Color Themes<br>
+    ✔ AI Vastu Correction
+  </div>
+</div>
+
+<div id="canvas" ondrop="drop(event)" ondragover="allowDrop(event)">
+  <div id="north" class="direction">NORTH</div>
+  <div id="south" class="direction">SOUTH</div>
+  <div id="east" class="direction">EAST</div>
+  <div id="west" class="direction">WEST</div>
+</div>
+
+</div>
+
+<div id="chatbot">
+  <div id="chatHeader">AI Assistant</div>
+  <div id="chatMessages"></div>
+  <input type="text" id="chatInput" placeholder="Ask for suggestions...">
+  <button onclick="sendMessage()">Send</button>
+</div>
+
+<script>
+function allowDrop(ev) {
+  ev.preventDefault();
+}
+
+function drag(ev) {
+  ev.dataTransfer.setData("text", ev.target.id);
+}
+
+function drop(ev) {
+  ev.preventDefault();
+  var data = ev.dataTransfer.getData("text");
+  var newRoom = document.createElement("div");
+  newRoom.className = "room";
+  newRoom.innerHTML = data;
+  newRoom.style.left = ev.offsetX + "px";
+  newRoom.style.top = ev.offsetY + "px";
+  newRoom.draggable = true;
+  newRoom.onmousedown = dragMove;
+  ev.target.appendChild(newRoom);
+}
+
+function dragMove(event) {
+  const element = event.target;
+  const shiftX = event.clientX - element.getBoundingClientRect().left;
+  const shiftY = event.clientY - element.getBoundingClientRect().top;
+
+  function moveAt(pageX, pageY) {
+    element.style.left = pageX - shiftX + 'px';
+    element.style.top = pageY - shiftY + 'px';
+  }
+
+  function onMouseMove(event) {
+    moveAt(event.pageX, event.pageY);
+  }
+
+  document.addEventListener('mousemove', onMouseMove);
+
+  document.addEventListener('mouseup', function() {
+    document.removeEventListener('mousemove', onMouseMove);
+  }, { once: true });
+}
+
+function sendMessage() {
+  let input = document.getElementById("chatInput");
+  let messages = document.getElementById("chatMessages");
+
+  let userText = input.value;
+  if (userText.trim() === "") return;
+
+  messages.innerHTML += "<div><b>You:</b> " + userText + "</div>";
+
+  let reply = "Try placing Kitchen in South-East and Bedroom in South-West for better alignment.";
+  messages.innerHTML += "<div><b>AI:</b> " + reply + "</div>";
+
+  input.value = "";
+  messages.scrollTop = messages.scrollHeight;
+}
+</script>
+
+</body>
+</html>
